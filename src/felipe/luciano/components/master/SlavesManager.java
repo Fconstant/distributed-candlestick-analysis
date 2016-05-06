@@ -16,19 +16,22 @@ import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import felipe.luciano.broadcast.BroadcastListener;
+import felipe.luciano.broadcast.BroadcastSender;
 import felipe.luciano.finances.CandlestickPattern;
+import felipe.luciano.support.Consts;
 import felipe.luciano.support.Log;
-import felipe.luciano.support.Ports;
 
-public class SlavesManager{
+public class SlavesManager implements BroadcastListener{
 
 	private Queue<InetAddress> slaveQueue = new LinkedList<>();
 	private ExecutorService executor;
 
+
 	private final Runnable slaveConnectRun = new Runnable() {
 		@Override
 		public void run() {
-			
+
 		}
 	};
 
@@ -36,39 +39,26 @@ public class SlavesManager{
 		executor = Executors.newFixedThreadPool(
 				Runtime.getRuntime().availableProcessors());
 	}
-	
-	private void startListen(SlaveListener listener){
-		this.listener = listener;
+
+
+	private void startListen(){
+
 		Log.p("Comecando a verificacao de escravos na rede...");
-		slaveListenerThread.start();
+		BroadcastSender.INSTANCE.startSearch(this);		
 	}
 
 	public void notifyNewPattern(CandlestickPattern pattern){
 		InetAddress freeSlave = slaveQueue.poll();
+		
 		for(; freeSlave == null; freeSlave = slaveQueue.poll());
+		
+		executor.execute(new SlaveHandler<CandlestickPattern>(pattern, freeSlave, this));
 
-		try {
-			
-			executor.execute(slaveConnectRun);
-			
-			Log.p("Enviando objeto para " + freeSlave.getHostAddress() + "...");
-			Socket sk = new Socket(freeSlave, Consts.Components.MASTER_SEND_SLAVE);
-
-			OutputStream out = sk.getOutputStream();
-			ObjectOutputStream writer = new ObjectOutputStream(out);
-
-			writer.writeObject(pattern);
-
-			Log.p("Objeto Enviado!");
-			sk.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 	}
 
-	public void findSlaves(SlaveListener listener){
+	public void findSlaves(){
 
-		startListen(listener);
+		startListen();
 
 		try {
 
@@ -105,6 +95,13 @@ public class SlavesManager{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
+	}
+
+
+	@Override
+	public void onReceiveAnswer(InetAddress ip) {
+
 
 	}
 

@@ -7,17 +7,13 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.jws.HandlerChain;
-
 import felipe.luciano.support.Consts;
 import felipe.luciano.support.Consts.Broadcast;
 import felipe.luciano.support.Log;
-import felipe.luciano.support.PortHandler;
 
 // Singleton class
 public enum BroadcastSender {
@@ -26,7 +22,6 @@ public enum BroadcastSender {
 	private BroadcastListener listener;
 	private String message;
 	private Thread sender, receiver;
-
 	private Set<InetAddress> broadcastAddresses;
 
 	public void startSearch(BroadcastListener listener, String messageToSend){
@@ -89,11 +84,12 @@ public enum BroadcastSender {
 
 			byte[] fullBuff = message.getBytes();
 			byte[] buffer = message.getBytes();
-			for(int byteCount = 0; byteCount < fullBuff.length ; buffer = )
-			DatagramPacket packet = new DatagramPacket(buffer, Short.BYTES,
+			
+			DatagramPacket packet = null;
+			for(int byteCount = 0; byteCount < fullBuff.length ; byteCount++)
+				
+			packet = new DatagramPacket(buffer, Short.BYTES,
 					broadcastAddress, Broadcast.BROADCAST_SEARCH);
-			
-			
 			
 			sk.send(packet);
 			sk.close();
@@ -142,5 +138,4 @@ public enum BroadcastSender {
 			}
 		}
 	};
-
 }

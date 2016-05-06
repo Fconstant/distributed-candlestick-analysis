@@ -18,7 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import felipe.luciano.components.master.SlavesManager.SlaveListener;
 import felipe.luciano.finances.CandlestickPattern;
 import felipe.luciano.support.Consts;
 import felipe.luciano.support.Log;
@@ -49,7 +48,7 @@ public class Master {
 		
 		
 		// Procura de escravos
-		slavesManager.findSlaves(this);
+		slavesManager.findSlaves();
 		
 		File folder = new File(Consts.Files.FILES_LOCATION);
 		csvFiles = Arrays.asList(folder.listFiles());
@@ -58,9 +57,8 @@ public class Master {
 
 	}
 	
-	@Override
 	public void onFindSlave(InetAddress slave) {
-
+		
 		// Comeco de envio dos arquivos
 		try {	
 			Socket sk = new Socket(slave, Consts.Components.MASTER_SEND_SLAVE_PORT);
