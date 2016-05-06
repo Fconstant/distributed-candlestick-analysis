@@ -4,9 +4,6 @@ import java.io.Serializable;
 
 import org.joda.time.LocalDate;
 
-import felipe.luciano.broadcast.BroadcastReceiver;
-import felipe.luciano.broadcast.BroadcastSender;
-
 public class Candlestick implements Serializable{
 
 	private static final long serialVersionUID = 8416011468385114741L;

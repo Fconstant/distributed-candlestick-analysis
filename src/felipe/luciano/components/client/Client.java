@@ -29,7 +29,7 @@ public class Client{
 		@Override
 		public void run() {
 			try {
-				ServerSocket serverReceiver = new ServerSocket(Consts.Ports.CLIENT_RECEIVE);
+				ServerSocket serverReceiver = new ServerSocket(Consts.Components.CLIENT_RECEIVE_PORT);
 				while(true){
 					Socket a = serverReceiver.accept();
 					ObjectInputStream objReceiver = new ObjectInputStream(a.getInputStream());
@@ -51,7 +51,7 @@ public class Client{
 		try {
 
 			Log.p("Cliente iniciando...");
-			Socket sk = new Socket(InetAddress.getByName(MASTER_IP), Consts.Ports.CLIENT_SEND); // TODO DEFINIR IP COM DDNS DEPOIS
+			Socket sk = new Socket(InetAddress.getByName(MASTER_IP), Consts.Components.CLIENT_SEND_PORT); // TODO DEFINIR IP COM DDNS DEPOIS
 			sk.setKeepAlive(true);
 			Log.p("Cliente conectado.");
 

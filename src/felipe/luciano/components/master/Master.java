@@ -22,8 +22,9 @@ import felipe.luciano.components.master.SlavesManager.SlaveListener;
 import felipe.luciano.finances.CandlestickPattern;
 import felipe.luciano.support.Consts;
 import felipe.luciano.support.Log;
+import felipe.luciano.support.PortHandler;
 
-public class Master implements SlaveListener {
+public class Master {
 	
 	// Vars
 	private Queue<CandlestickPattern> patterns;
@@ -39,14 +40,30 @@ public class Master implements SlaveListener {
 		clientManager = new ClientManager();
 		slavesManager = new SlavesManager();
 	}
-	
 
+	public void run(){
+		Log.p("Mestre iniciado.");
+		
+		
+		// Conectando com o cliente
+		
+		
+		// Procura de escravos
+		slavesManager.findSlaves(this);
+		
+		File folder = new File(Consts.Files.FILES_LOCATION);
+		csvFiles = Arrays.asList(folder.listFiles());
+		
+		new Thread(clientReceiver).start();
+
+	}
+	
 	@Override
 	public void onFindSlave(InetAddress slave) {
 
 		// Comeco de envio dos arquivos
 		try {	
-			Socket sk = new Socket(slave, Consts.Ports.MASTER_SEND_SLAVE);
+			Socket sk = new Socket(slave, Consts.Components.MASTER_SEND_SLAVE_PORT);
 			BufferedOutputStream saidaBuffer = new BufferedOutputStream(sk.getOutputStream(), Consts.Files.FILE_BUFFER);
 			DataOutputStream saidaData = new DataOutputStream(saidaBuffer);
 
@@ -91,7 +108,7 @@ public class Master implements SlaveListener {
 		public void run() {
 
 			try {
-				ServerSocket a = new ServerSocket(Consts.Ports.MASTER_RECEIVE_CLIENT);
+				ServerSocket a = new ServerSocket(Consts.Components.MASTER_RECEIVE_CLIENT_PORT);
 				patterns = new LinkedList<>();
 
 				Socket sk = a.accept();
@@ -126,8 +143,8 @@ public class Master implements SlaveListener {
 		@Override
 		public void run() {
 			try {
-				Socket clientSk = new Socket(client, Consts.Ports.MASTER_SEND_CLIENT);
-				ServerSocket a = new ServerSocket(Consts.Ports.MASTER_RECEIVE_SLAVE);
+				Socket clientSk = new Socket(client, Consts.Components.MASTER_SEND_CLIENT_PORT);
+				ServerSocket a = new ServerSocket(Consts.Components.MASTER_RECEIVE_SLAVE_PORT);
 				while(true){
 					Socket slaveSk = a.accept();
 					slavesManager.slaveQueue.add(slaveSk.getInetAddress());
@@ -148,19 +165,5 @@ public class Master implements SlaveListener {
 	};
 
 	
-	public void run(){
-		Log.p("Mestre iniciado.");
-		slavesManager = new SlavesManager();
-		
-		// Procura de escravos
-		Log.p("Encontrando maquinas-escravo...");
-		slavesManager.findSlaves(this);
-		
-		File folder = new File(Consts.Files.FILES_LOCATION);
-		csvFiles = Arrays.asList(folder.listFiles());
-		
-		new Thread(clientReceiver).start();
-
-	}
 
 }

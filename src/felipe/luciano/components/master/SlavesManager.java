@@ -17,17 +17,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import felipe.luciano.finances.CandlestickPattern;
+import felipe.luciano.support.Log;
 import felipe.luciano.support.Ports;
 
 public class SlavesManager{
 
 	private Queue<InetAddress> slaveQueue = new LinkedList<>();
 	private ExecutorService executor;
-	
-	SlavesManager(){
-		
-	}
-	
 
 	private final Runnable slaveConnectRun = new Runnable() {
 		@Override
@@ -35,12 +31,6 @@ public class SlavesManager{
 			
 		}
 	};
-
-	public interface SlaveListener{
-		void onFindSlave(InetAddress slave);
-	}
-	
-	private SlaveListener listener;
 
 	public SlavesManager(){
 		executor = Executors.newFixedThreadPool(
@@ -62,7 +52,7 @@ public class SlavesManager{
 			executor.execute(slaveConnectRun);
 			
 			Log.p("Enviando objeto para " + freeSlave.getHostAddress() + "...");
-			Socket sk = new Socket(freeSlave, Consts.Ports.MASTER_SEND_SLAVE);
+			Socket sk = new Socket(freeSlave, Consts.Components.MASTER_SEND_SLAVE);
 
 			OutputStream out = sk.getOutputStream();
 			ObjectOutputStream writer = new ObjectOutputStream(out);
@@ -82,6 +72,7 @@ public class SlavesManager{
 
 		try {
 
+			Log.p("Encontrando maquinas-escravo...");
 			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
 
 			while (interfaces.hasMoreElements()) {
@@ -102,7 +93,7 @@ public class SlavesManager{
 
 					byte[] buffer = new byte[1]; // Buffer com nada
 					DatagramPacket packet = new DatagramPacket(buffer, 1,
-							broadcast, Consts.Ports.MASTER_SEND_SLAVE);
+							broadcast, Consts.Components.MASTER_SEND_SLAVE);
 
 					sk.send(packet);
 					sk.close();

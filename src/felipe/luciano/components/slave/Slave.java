@@ -46,7 +46,7 @@ public class Slave {
 
 			// Aqui o Escravo fara papel de servidor para receber os arquivos de financas
 			Log.p("Aguardando requisicao do Mestre...");
-			serverSocket = new ServerSocket(Consts.Ports.SLAVE_RECEIVE);
+			serverSocket = new ServerSocket(Consts.Components.SLAVE_RECEIVE_BASE_PORT);
 			socket = serverSocket.accept();
 
 			Log.p("Mestre conectado. Comecando a receber arquivos...");
@@ -89,7 +89,7 @@ public class Slave {
 		try {
 
 			// Aqui o Escravo fara papel de servidor para receber os arquivos de financas
-			ServerSocket a = new ServerSocket(Consts.Ports.SLAVE_RECEIVE);
+			ServerSocket a = new ServerSocket(Consts.Components.SLAVE_RECEIVE_BASE_PORT);
 			Log.p("Aguardando requisicao do Mestre...");
 			Socket sk = a.accept();
 
@@ -156,7 +156,7 @@ public class Slave {
 		
 		Socket sk;
 		try {
-			sk = new Socket(masterAdress, Consts.Ports.SLAVE_SEND);
+			sk = new Socket(masterAdress, Consts.Components.SLAVE_SEND_BASE_PORT);
 
 			OutputStream out = sk.getOutputStream();
 			ObjectOutputStream writer = new ObjectOutputStream(out);

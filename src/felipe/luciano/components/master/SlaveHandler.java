@@ -7,8 +7,10 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.logging.Logger;
 
 import felipe.luciano.support.Consts;
+import felipe.luciano.support.Log;
 import felipe.luciano.support.Ports;
 
 public class SlaveHandler<T> extends Thread{
@@ -30,7 +32,7 @@ public class SlaveHandler<T> extends Thread{
 		try {
 
 			if(slaveSocket == null || slaveSocket.isClosed())
-				slaveSocket = new Socket(slave, Consts.Ports.MASTER_SEND_SLAVE);
+				slaveSocket = new Socket(slave, Consts.Components.MASTER_SEND_SLAVE_PORT);
 			Log.p("Enviando objeto para " + slave.getHostAddress() + "...");
 
 			// Envio de Objeto

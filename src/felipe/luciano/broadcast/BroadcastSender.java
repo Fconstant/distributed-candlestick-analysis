@@ -7,30 +7,41 @@ import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.jws.HandlerChain;
+
 import felipe.luciano.support.Consts;
+import felipe.luciano.support.Consts.Broadcast;
 import felipe.luciano.support.Log;
+import felipe.luciano.support.PortHandler;
 
 // Singleton class
 public enum BroadcastSender {
 	INSTANCE;
 
 	private BroadcastListener listener;
+	private String message;
 	private Thread sender, receiver;
 
 	private Set<InetAddress> broadcastAddresses;
 
-	public void startSearch(BroadcastListener listener){
+	public void startSearch(BroadcastListener listener, String messageToSend){
 		this.listener = listener;
-
+		this.message = messageToSend;
+		
 		sender = new Thread(senderRunnable);
 		receiver = new Thread(receiverRunnable);
 
 		findBroadcastAddresses();
 		receiver.start();
+	}
+	
+	public void startSearch(BroadcastListener listener){
+		startSearch(listener, null);
 	}
 
 	public void stopSearch(){
@@ -76,9 +87,14 @@ public enum BroadcastSender {
 
 			sk.setBroadcast(true);
 
-			byte[] buffer = new byte[1]; // Buffer com nada escrito
-			DatagramPacket packet = new DatagramPacket(buffer, 1,
-					broadcastAddress, Consts.Ports.BROADCAST_SEARCH);
+			byte[] fullBuff = message.getBytes();
+			byte[] buffer = message.getBytes();
+			for(int byteCount = 0; byteCount < fullBuff.length ; buffer = )
+			DatagramPacket packet = new DatagramPacket(buffer, Short.BYTES,
+					broadcastAddress, Broadcast.BROADCAST_SEARCH);
+			
+			
+			
 			sk.send(packet);
 			sk.close();
 
@@ -107,7 +123,7 @@ public enum BroadcastSender {
 			
 			DatagramSocket sk;
 			try {
-				sk = new DatagramSocket(Consts.Ports.BROADCAST_ANSWER);
+				sk = new DatagramSocket(Broadcast.BROADCAST_ANSWER);
 
 				while(true){
 					byte[] buffer = new byte[1];

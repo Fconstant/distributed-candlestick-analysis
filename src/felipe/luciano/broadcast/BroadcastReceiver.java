@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import felipe.luciano.support.Consts;
+import felipe.luciano.support.Consts.Broadcast;
 import felipe.luciano.support.Log;
 
 public enum BroadcastReceiver {
@@ -15,7 +15,7 @@ public enum BroadcastReceiver {
 		InetAddress masterAddress = null;
 		
 		try {
-			DatagramSocket dsocket = new DatagramSocket(Consts.Ports.BROADCAST_SEARCH);
+			DatagramSocket dsocket = new DatagramSocket(Broadcast.BROADCAST_SEARCH);
 
 			byte[] buffer = new byte[1];
 			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -26,7 +26,7 @@ public enum BroadcastReceiver {
 			masterAddress = packet.getAddress();
 			Log.p("Recebido! Address do emissor: " + masterAddress);
 
-			packet = new DatagramPacket(buffer, 1, masterAddress, Consts.Ports.BROADCAST_ANSWER);
+			packet = new DatagramPacket(buffer, 1, masterAddress, Broadcast.BROADCAST_ANSWER);
 			dsocket.send(packet);
 			Log.p("Pacote reenviado ao emissor.");
 			dsocket.close();
