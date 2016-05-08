@@ -51,7 +51,7 @@ public class Client{
 		try {
 
 			Log.p("Cliente iniciando...");
-			Socket sk = new Socket(InetAddress.getByName(MASTER_IP), Consts.Components.CLIENT_SEND_PORT); // TODO DEFINIR IP COM DDNS DEPOIS
+			Socket sk = new Socket(InetAddress.getByName(MASTER_IP), Consts.Components.CLIENT_PORT); // TODO DEFINIR IP COM DDNS DEPOIS
 			sk.setKeepAlive(true);
 			Log.p("Cliente conectado.");
 

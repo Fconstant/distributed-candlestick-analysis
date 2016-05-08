@@ -20,6 +20,10 @@ public class GainStatistics implements Serializable{
 		stat.put(subject, result);
 	}
 	
+	public int resultSize(){
+		return stat.size();
+	}
+	
 	public GainResult get(String subject){
 		return stat.get(subject);
 	}

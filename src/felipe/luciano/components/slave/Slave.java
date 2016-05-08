@@ -1,25 +1,19 @@
 package felipe.luciano.components.slave;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.util.List;
-
-import org.apache.commons.csv.CSVFormat;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import felipe.luciano.broadcast.BroadcastReceiver;
-import felipe.luciano.finances.Candlestick;
+import felipe.luciano.files.FileReceiver;
 import felipe.luciano.finances.CandlestickPattern;
 import felipe.luciano.finances.GainResult;
 import felipe.luciano.finances.GainStatistics;
@@ -28,146 +22,131 @@ import felipe.luciano.support.Log;
 
 public class Slave {
 
-	private InetAddress masterAdress;
-	
 	private ServerSocket serverSocket;
 	private Socket socket;
+	private ExecutorService executor;
+
+	private volatile GainStatistics statistics;
 
 	public static void main(String[] args) {
-		new Slave().run();
+		new Slave().start();
 	}
 
-	public void run() {
-
+	public void start() {
 		Log.p("Escravo iniciado.");
-		masterAdress = BroadcastReceiver.INSTANCE.receiveAndAnswer();
-		
+		BroadcastReceiver.INSTANCE.receiveAndAnswer();
+
 		try {
-
-			// Aqui o Escravo fara papel de servidor para receber os arquivos de financas
+			// Conectando com o mestre
+			int port = getPortToConnect();
+			serverSocket = new ServerSocket(port);
 			Log.p("Aguardando requisicao do Mestre...");
-			serverSocket = new ServerSocket(Consts.Components.SLAVE_RECEIVE_BASE_PORT);
 			socket = serverSocket.accept();
+			Log.p("Conectado com o mestre.");
 
-			Log.p("Mestre conectado. Comecando a receber arquivos...");
-			BufferedInputStream bufferInput = new BufferedInputStream(socket.getInputStream());
-			DataInputStream input = new DataInputStream(bufferInput);
-			int numArquivos = input.readInt();
+			if(!receiveFiles(port))
+				System.exit(0);
+			
+		} catch (IOException e) {
+			Log.e("Erro ao conectar-se com o Mestre");
+		}
 
-			new File("files/").mkdir();
-			for(int i = 0 ; i < numArquivos ; i++){
-
-				Log.p("Comecando a receber arquivos do emissor...");
-				String nomeArquivo = input.readUTF();
-				long tamArquivo = input.readLong();
-
-				Log.p("Recebendo arquivo: " + nomeArquivo + ", Tamanho: " + tamArquivo / 1000 + " KB...");
-
-				BufferedOutputStream fileWriter = new BufferedOutputStream(
-						new FileOutputStream("files/" + nomeArquivo));
-
-				for (int readBytes = 0; readBytes < tamArquivo; readBytes++)
-					fileWriter.write(bufferInput.read());
-
-				fileWriter.close();
-			}
-			input.close();
-
-		} catch (SocketException e) {
-			e.printStackTrace();
+		while(work());
+		try {
+			Log.p("Fechando conexões e terminando execução...");
+			socket.close();
+			serverSocket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		beginWork();
-
 	}
 
-	private void beginWork(){
+	private int getPortToConnect(){
+		try {
+			DatagramSocket dsocket = new DatagramSocket(Consts.Components.SLAVE_RAW_PORT);
 
+			byte[] buffer = new byte[Consts.Broadcast.BUFFER_LENGTH];
+			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+			Log.p("Comecando a receber pacote de requisicao...");
+			dsocket.receive(packet);
+
+			int port = Integer.valueOf(new String(packet.getData()));
+			Log.p("Porta a se conectar: " + port);
+
+			dsocket.close();
+			return port; 
+		} catch (IOException e) {
+			Log.e("Erro ao receber pacote com a porta a se conectar");
+		}
+
+		return -1;
+	}
+
+	private boolean receiveFiles(int port){
+		FileReceiver receiver = new FileReceiver(port);
+		boolean res = receiver.receiveAndSave(); 
+		if(res)
+			Log.p("Arquivos recebidos com sucesso!");
+		else
+			Log.e("Houve um problema ao receber arquivos. Tente rodar novamente.");
+
+		return res;
+	}
+
+
+	private boolean work(){
+
+		// Aqui serão recebidos os objetos vindos do Master
 		CandlestickPattern curPattern = null;
 		try {
+			ObjectInputStream masterReader = new ObjectInputStream(socket.getInputStream());
 
-			// Aqui o Escravo fara papel de servidor para receber os arquivos de financas
-			ServerSocket a = new ServerSocket(Consts.Components.SLAVE_RECEIVE_BASE_PORT);
-			Log.p("Aguardando requisicao do Mestre...");
-			Socket sk = a.accept();
-
-			Log.p("Requisicao de novo objeto chegou... Recebendo...");
-			InputStream in = sk.getInputStream();
-			ObjectInputStream reader = new ObjectInputStream(in);
-
-			curPattern = (CandlestickPattern) reader.readObject();
-
+			Log.p("Aguardando requisição de novo objeto...");
+			curPattern = (CandlestickPattern) masterReader.readObject();
+			masterReader.close();
 			Log.p("Objeto recebido:\n" + curPattern);
-			
-			sk.close();
-			a.close();
-		} catch (SocketException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} catch (ClassNotFoundException | IOException e) {
+			return false;
 		}
 
+		// Começo do processamento dos arquivos de finanças
+		Log.p("Comecando o processamento em massa...");
 
 		File folder = new File("files/");
+		statistics = new GainStatistics(folder.list().length, curPattern);
+		executor = Executors.newFixedThreadPool(
+				Runtime.getRuntime().availableProcessors()); // Criando uma piscina de Threads
 
-		GainStatistics statistics = new GainStatistics(folder.list().length, curPattern);
-
-		Log.p("Comecando o processamento em massa...");
 		for(File file : folder.listFiles()){
-
-			Log.p("Usando arquivo " + file.getName() + "...");
-			CSVReader reader = new CSVReader(file.getAbsolutePath(), CSVFormat.EXCEL);
-			List<Candlestick> allDays = null;
-
-			try {
-				allDays = reader.csvToCandlesticks();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			Log.p("Processando arquivo atual...");
-			GainResult result = new GainResult();
-			for(int i = 4; i < allDays.size() - 3 ; i++){
-				boolean check = curPattern.verify(allDays.subList(i - 4, i));
-
-				if(check){
-					double compareClose = allDays.get(i).getClose() * 3;
-					double sum = 0;
-					
-					for(int j = 1 ; j <= 3 ; j++)
-						sum += allDays.get(i + j).getClose();
-					
-					if(compareClose > sum)
-						result.countProfit();
-					else
-						result.countLoss();
-					
-					
-				} else result.countNotFound();
-				Log.p(result);
-			}
-			statistics.put(file.getName(), result);
+			executor.execute(new Worker(file, curPattern, this));
 		}
-		Log.p("Estatisticas finais:\n" + statistics);
 		
-		Socket sk;
+		// Verifica se todos os Threads já acabaram
 		try {
-			sk = new Socket(masterAdress, Consts.Components.SLAVE_SEND_BASE_PORT);
-
-			OutputStream out = sk.getOutputStream();
-			ObjectOutputStream writer = new ObjectOutputStream(out);
-			
-			writer.writeObject(statistics);
-			
-			sk.close();
-		} catch (IOException e) {
+			while(!executor.awaitTermination(3, TimeUnit.SECONDS)); // Espera 3 segs para verificar de novo
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 
+		if(statistics.resultSize() != folder.list().length){
+			Log.e("Houve um erro: Parece que ficou faltando algum(s) arquivo(s) para serem processado(s). Prosseguindo mesmo assim...");
+		}
+		
+		try {
+			ObjectOutputStream writer = new ObjectOutputStream(socket.getOutputStream());
+			writer.writeObject(statistics);
+
+			writer.close();
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+
+	void notifyResult(String name, GainResult result){
+		statistics.put(name, result);
 	}
 
 }

@@ -11,11 +11,16 @@ public final class Log {
 	
 	public static void p(Object msg){
 		StackTraceElement el = getCalledClassStack();
-		Log.p("[ " + el.getClassName() + "." + el.getMethodName() + " ] " + msg);
+		System.out.println("[ " + el.getClassName() + "." + el.getMethodName() + " ] " + msg);
 	}
 	
 	public static void p(Object tag, Object msg){
 		StackTraceElement el = getCalledClassStack();
-		Log.p("[ " + el.getClassName() + "." + el.getMethodName() + " ] " + tag + ": " +  msg);
+		System.out.println("[ " + el.getClassName() + "." + el.getMethodName() + " ] " + tag + ": " +  msg);
+	}
+	
+	public static void e(Object msg){
+		StackTraceElement el = getCalledClassStack();
+		System.err.println("[ " + el.getClassName() + "." + el.getMethodName() + " ] ERROR: " +  msg);
 	}
 }

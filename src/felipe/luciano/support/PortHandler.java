@@ -7,7 +7,7 @@ public class PortHandler {
 
 	private int curPort;
 
-	private PortHandler(int basePort){
+	public PortHandler(int basePort){
 		curPort = basePort;
 	}
 

@@ -26,18 +26,18 @@ public class FileTransmissor {
 
 		try {
 			Socket sk = new Socket(sendTo, port);
-			BufferedOutputStream saidaBuffer = new BufferedOutputStream(sk.getOutputStream(), Consts.Files.FILE_BUFFER);
+			BufferedOutputStream saidaBuffer = new BufferedOutputStream(sk.getOutputStream(), Consts.Files.FILE_BUFFER_LENGTH);
 			DataOutputStream saidaData = new DataOutputStream(saidaBuffer);
 
 			Log.p("Enviando arquivos para a máquina " + sendTo.getHostName() + "...");
 
-			byte[] buffer = new byte[Consts.Files.FILE_BUFFER];
+			byte[] buffer = new byte[Consts.Files.FILE_BUFFER_LENGTH];
 
 			File[] files = prepareFileOrFolder(fileToSend);
 			saidaData.writeInt(files.length); // Manda o numero de arquivos pro Slave
 
 			for(File file : files){
-				BufferedInputStream fileReader = new BufferedInputStream(new FileInputStream(file), Consts.Files.FILE_BUFFER);
+				BufferedInputStream fileReader = new BufferedInputStream(new FileInputStream(file), Consts.Files.FILE_BUFFER_LENGTH);
 
 				saidaData.writeUTF(file.getName());
 				saidaData.writeLong(file.length());
@@ -45,7 +45,7 @@ public class FileTransmissor {
 				Log.p(sendTo.getHostName() + ": Enviando '" + file.getName() + "', Tamanho: " + file.length() / 1000 + " KB");
 
 				int byteCount = 0;
-				while ((byteCount = fileReader.read(buffer, 0, Consts.Files.FILE_BUFFER)) != -1){
+				while ((byteCount = fileReader.read(buffer, 0, Consts.Files.FILE_BUFFER_LENGTH)) != -1){
 					saidaBuffer.write(buffer, 0, byteCount);
 				}
 				fileReader.close();

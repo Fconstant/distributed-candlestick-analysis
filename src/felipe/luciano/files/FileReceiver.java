@@ -60,7 +60,7 @@ public class FileReceiver {
 		} catch (SocketException e) {
 			
 		} catch (IOException e) {
-			Log.p("Problema ao receber arquivo, Erro: " + e.getMessage());
+			Log.e("Problema ao receber arquivo - " + e.getMessage());
 		}
 		return false;
 	}
