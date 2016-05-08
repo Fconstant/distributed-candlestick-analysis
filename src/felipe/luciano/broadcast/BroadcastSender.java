@@ -74,8 +74,18 @@ public enum BroadcastSender {
 			DatagramSocket sk = new DatagramSocket();
 			sk.setBroadcast(true);
 
+<<<<<<< HEAD
 			byte[] buffer = new byte[1];
 			DatagramPacket packet = new DatagramPacket(buffer, buffer.length,
+=======
+			byte[] fullBuff = message.getBytes();
+			byte[] buffer = message.getBytes();
+			
+			DatagramPacket packet = null;
+			for(int byteCount = 0; byteCount < fullBuff.length ; byteCount++)
+				
+			packet = new DatagramPacket(buffer, Short.BYTES,
+>>>>>>> origin/master
 					broadcastAddress, Broadcast.BROADCAST_SEARCH);
 			
 			sk.send(packet);
