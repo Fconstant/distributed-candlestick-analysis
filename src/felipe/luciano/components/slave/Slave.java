@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.ServerSocket;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,7 +20,6 @@ import felipe.luciano.support.Log;
 
 public class Slave {
 
-	private ServerSocket serverSocket;
 	private Socket socket;
 	private ExecutorService executor;
 
@@ -34,17 +31,15 @@ public class Slave {
 
 	public void start() {
 		Log.p("Escravo iniciado.");
-		BroadcastReceiver.INSTANCE.receiveAndAnswer();
+		InetAddress masterIP = BroadcastReceiver.INSTANCE.receive();
 
 		try {
 			// Conectando com o mestre
-			int port = getPortToConnect();
-			serverSocket = new ServerSocket(port);
-			Log.p("Aguardando requisicao do Mestre...");
-			socket = serverSocket.accept();
-			Log.p("Conectado com o mestre.");
+			Log.p("Conectando-se ao Mestre " + masterIP.getHostName() + "...");
+			socket = new Socket(masterIP, Consts.Components.SLAVE_PORT);
+			Log.p("Conectado com o Mestre.");
 
-			if(!receiveFiles(port))
+			if(!receiveFiles())
 				System.exit(0);
 			
 		} catch (IOException e) {
@@ -53,39 +48,16 @@ public class Slave {
 
 		while(work());
 		try {
-			Log.p("Fechando conexões e terminando execução...");
+			Log.p("Fechando conexão e terminando execução...");
 			socket.close();
-			serverSocket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
 
-	private int getPortToConnect(){
-		try {
-			DatagramSocket dsocket = new DatagramSocket(Consts.Components.SLAVE_RAW_PORT);
-
-			byte[] buffer = new byte[Consts.Broadcast.BUFFER_LENGTH];
-			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-			Log.p("Comecando a receber pacote de requisicao...");
-			dsocket.receive(packet);
-
-			int port = Integer.valueOf(new String(packet.getData()));
-			Log.p("Porta a se conectar: " + port);
-
-			dsocket.close();
-			return port; 
-		} catch (IOException e) {
-			Log.e("Erro ao receber pacote com a porta a se conectar");
-		}
-
-		return -1;
-	}
-
-	private boolean receiveFiles(int port){
-		FileReceiver receiver = new FileReceiver(port);
+	private boolean receiveFiles(){
+		FileReceiver receiver = new FileReceiver(socket);
 		boolean res = receiver.receiveAndSave(); 
 		if(res)
 			Log.p("Arquivos recebidos com sucesso!");
@@ -131,7 +103,7 @@ public class Slave {
 		}
 
 		if(statistics.resultSize() != folder.list().length){
-			Log.e("Houve um erro: Parece que ficou faltando algum(s) arquivo(s) para serem processado(s). Prosseguindo mesmo assim...");
+			Log.e("Parece que ficou faltando algum(s) arquivo(s) para serem processado(s). Prosseguindo mesmo assim...");
 		}
 		
 		try {

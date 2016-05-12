@@ -13,32 +13,24 @@ import java.util.Set;
 
 import felipe.luciano.support.Consts;
 import felipe.luciano.support.Consts.Broadcast;
-import felipe.luciano.support.Log;
 
 // Singleton class
 public enum BroadcastSender {
 	INSTANCE;
 
-	private BroadcastListener listener;
-	private Thread sender, receiver;
+	private Thread sender;
 	private Set<InetAddress> broadcastAddresses;
 
-	public void startSearch(BroadcastListener listener){
-		this.listener = listener;
-		sender = new Thread(senderRunnable);
-		receiver = new Thread(receiverRunnable);
-
+	public void startSearch(){
 		findBroadcastAddresses();
-		receiver.start();
+		
+		sender = new Thread(senderRunnable);
+		sender.start();
 	}
 
 	public void stopSearch(){
 		if(sender != null && sender.isAlive()){
 			sender.interrupt();
-		}
-
-		if(receiver != null && receiver.isAlive()){
-			receiver.interrupt();
 		}
 	}
 
@@ -74,18 +66,8 @@ public enum BroadcastSender {
 			DatagramSocket sk = new DatagramSocket();
 			sk.setBroadcast(true);
 
-<<<<<<< HEAD
 			byte[] buffer = new byte[1];
 			DatagramPacket packet = new DatagramPacket(buffer, buffer.length,
-=======
-			byte[] fullBuff = message.getBytes();
-			byte[] buffer = message.getBytes();
-			
-			DatagramPacket packet = null;
-			for(int byteCount = 0; byteCount < fullBuff.length ; byteCount++)
-				
-			packet = new DatagramPacket(buffer, Short.BYTES,
->>>>>>> origin/master
 					broadcastAddress, Broadcast.BROADCAST_SEARCH);
 			
 			sk.send(packet);
@@ -106,32 +88,6 @@ public enum BroadcastSender {
 				}
 			} catch (InterruptedException e) {
 				// Fazer nada
-			}
-		}
-	};
-
-
-	private final Runnable receiverRunnable = new Runnable() {
-		public void run() {
-			
-			DatagramSocket sk;
-			try {
-				sk = new DatagramSocket(Broadcast.BROADCAST_ANSWER);
-
-				while(true){
-					byte[] buffer = new byte[1];
-					DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-					sk.receive(packet);
-
-					InetAddress inet = packet.getAddress();
-					Log.p("Máquina reconhecida: " + inet.getHostName());
-					listener.onReceiveAnswer(inet);
-				}
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		}
 	};

@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.Socket;
 
 import felipe.luciano.files.FileTransmissor;
@@ -18,31 +15,39 @@ import felipe.luciano.support.Log;
 
 public class SlaveHandler extends Thread{
 
-	private final InetAddress slave;
 	private final SlavesManager manager;
-	private final int port;
+	private final Socket slaveSocket;
 
-	private boolean isPrepared = false;
+	private volatile boolean isPrepared = false;
 	private CandlestickPattern objectToSend;
-	private Socket slaveSocket;
 
-	SlaveHandler(InetAddress slave, int port, SlavesManager manager) {
-		this.slave = slave;
+	SlaveHandler(Socket slaveSocket, SlavesManager manager) {
 		this.manager = manager;
-		this.port = port;
+		this.slaveSocket = slaveSocket;
+		prepareSlave();
 	}
 
-	public void prepareSlave(){
-		sendPort();
-		sendFiles();
-		isPrepared = true;
+	private void prepareSlave(){
+		if(!isPrepared){
+			sendFiles();
+			isPrepared = true;	
+		}
+	}
+
+	public void terminate(){
+		try {
+			slaveSocket.close();
+		} catch (IOException e) {
+			Log.e("Não foi possível fechar socket de " + 
+					slaveSocket.getInetAddress().getHostName() + ": Ainda sendo usado");
+		}
 	}
 
 	@Override
 	public void run() {
 		while(!isPrepared){
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(5 * 1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -54,55 +59,26 @@ public class SlaveHandler extends Thread{
 		objectToSend = pattern;
 	}
 
-	// Envia a porta em que o escravo deve se conectar e ficar conectado até o fim do programa
-	private void sendPort(){
-		try {
-			DatagramSocket sk = new DatagramSocket();
-			byte[] buffer = String.valueOf(port).getBytes();
-
-			DatagramPacket packet = new DatagramPacket(buffer, Consts.Broadcast.BUFFER_LENGTH,
-					slave, Consts.Components.SLAVE_RAW_PORT);
-
-			Log.p("Enviando pacote contendo porta que o escravo deve se conectar: " + port);
-			sk.send(packet);
-			sk.close();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	// Envia os arquivos de finanças para o escravo
 	private void sendFiles(){
 		File folder = new File(Consts.Files.FILES_LOCATION);
 
-		FileTransmissor transmissor = new FileTransmissor(slave, port);
+		FileTransmissor transmissor = new FileTransmissor(slaveSocket);
 		transmissor.send(folder);
 	}
 
 	// Envia o objeto em si, no caso o CandlestickPattern
 	private void sendObject(){
 
+		String host = slaveSocket.getInetAddress().getHostAddress();
+
 		if(objectToSend == null){
 			Log.e("Object a ser enviado é nulo, abortando...");
 			return;
 		}
 
-		while(slaveSocket == null || slaveSocket.isClosed()) {
-			try {
-				slaveSocket = new Socket(slave, port);
-			} catch(IOException e){
-				Log.e("Porta " + port + " em uso, aguardando para nova tentativa de conexão...");
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException ie) {
-					ie.printStackTrace();
-				}
-			}
-		}
-		
 		try {
-			Log.p("Enviando objeto para " + slave.getHostAddress() + "...");
+			Log.p("Enviando objeto para " + host + "...");
 
 			// Envio de Objeto
 			OutputStream out = slaveSocket.getOutputStream();
@@ -112,12 +88,12 @@ public class SlaveHandler extends Thread{
 			Log.p("Objeto Enviado!");
 
 			// Recepção de Resultados
-			Log.p("Aguardando resposta de " + slave);
+			Log.p("Aguardando resposta de " + host);
 			ObjectInputStream slaveReader = new ObjectInputStream(slaveSocket.getInputStream());
 
-			manager.notifyResult((GainStatistics) slaveReader.readObject());
-			Log.p("Escravo " + slave + " voltou a ficar ocioso.");
-			
+			manager.notifyResult((GainStatistics) slaveReader.readObject(), this);
+			Log.p("Escravo " + host + " voltou a ficar ocioso.");
+
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}

@@ -42,12 +42,12 @@ public class Expression implements Serializable{
 		return exps;
 	}
 
-	public void loadVarsIntoScriptEngine(Bindings engineScope, CandlestickPattern pattern){
+	public void loadVarsIntoScriptEngine(Bindings engineScope, List<Candlestick> candles){
 
 		for(String exp : expVars){
-
+			
 			int dia = Character.getNumericValue(exp.charAt(1));
-			Candlestick candle = pattern.getDays().get(dia - 1);
+			Candlestick candle = candles.get(dia - 1);
 
 			char identifier = exp.split("_")[1].charAt(0);
 

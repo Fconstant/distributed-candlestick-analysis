@@ -11,7 +11,7 @@ import felipe.luciano.support.Log;
 public enum BroadcastReceiver {
 	INSTANCE;
 	
-	public InetAddress receiveAndAnswer(){
+	public InetAddress receive(){
 		InetAddress masterAddress = null;
 		
 		try {
@@ -25,12 +25,8 @@ public enum BroadcastReceiver {
 
 			masterAddress = packet.getAddress();
 			Log.p("Recebido! Address do emissor: " + masterAddress);
-
-			packet = new DatagramPacket(buffer, 1, masterAddress, Broadcast.BROADCAST_ANSWER);
-			dsocket.send(packet);
-			Log.p("Pacote reenviado ao emissor.");
+			
 			dsocket.close();
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

@@ -43,15 +43,11 @@ public final class Consts {
 		public static final int CLIENT_PORT = 20000;
 
 		// Slave PortsPorts
-		public static final int SLAVE_RAW_PORT = 20500;
-		public static final int SLAVE_BASE_PORT = SLAVE_RAW_PORT + 1;
-		// public static final int SLAVE_RECEIVE_BASE_PORT = 25500;
+		public static final int SLAVE_PORT = 20500;
 		
 		// Master Ports
 		public static final int MASTER_CLIENT_PORT = CLIENT_PORT;
-		public static final int MASTER_SLAVE_BASE_PORT = SLAVE_BASE_PORT;
-		// public static final int MASTER_RECEIVE_SLAVE_PORT = SLAVE_SEND_BASE_PORT;
-		// public static final int MASTER_SEND_SLAVE_PORT = SLAVE_RECEIVE_BASE_PORT;
+		public static final int MASTER_SLAVE_PORT = SLAVE_PORT;
 	}
 
 }

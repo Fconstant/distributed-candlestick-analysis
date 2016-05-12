@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,58 +17,40 @@ import felipe.luciano.support.Log;
 
 public class Client{
 
-	private static final String MASTER_IP = "silverteam.ddns.net";
-
+	private Socket socket;
+	private boolean isEnded = false;
+	
 	public static void main(String[] args) {
 		new Client().run();
 	}
 
-	private final Runnable resultReceiver = new Runnable() {
-
-		@Override
-		public void run() {
-			try {
-				ServerSocket serverReceiver = new ServerSocket(Consts.Components.CLIENT_RECEIVE_PORT);
-				while(true){
-					Socket a = serverReceiver.accept();
-					ObjectInputStream objReceiver = new ObjectInputStream(a.getInputStream());
-
-					GainStatistics result = (GainStatistics) objReceiver.readObject();
-					Log.p(result);
-				}
-
-			} catch (IOException | ClassNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-	};
-
 	public void run(){
-
+		Log.p("Cliente iniciado.");
 		new Thread(resultReceiver).start();
-
+		
+		Scanner scan = new Scanner(System.in);
+		System.out.print("Digite o IP do mestre: ");
+		String masterIP = scan.next();
+		
 		try {
-
-			Log.p("Cliente iniciando...");
-			Socket sk = new Socket(InetAddress.getByName(MASTER_IP), Consts.Components.CLIENT_PORT); // TODO DEFINIR IP COM DDNS DEPOIS
-			sk.setKeepAlive(true);
-			Log.p("Cliente conectado.");
+			socket = new Socket(InetAddress.getByName(masterIP), Consts.Components.CLIENT_PORT);
+			socket.setKeepAlive(true);
+			Log.p("Mestre conectado com sucesso.");
 
 			String exp = null;
 			int expCount = 1;
-			Scanner scan = new Scanner(System.in);
-			ObjectOutputStream writer = new ObjectOutputStream(sk.getOutputStream());
+			ObjectOutputStream writer = new ObjectOutputStream(socket.getOutputStream());
 			do {
-				Log.p("Entre com as expressoes abaixo\nDigite NEXT para ir pra proximo conjunto de expressï¿½es,"
-						+ "ou EXIT para parar a execucao e somente aguardar a resposta do Mestre");
+				System.out.println("Entre um conjunto de expressoes abaixo\nDigite PROX para ir pra proximo conjunto de expressoes,"
+						+ "ou PARAR para parar a execucao e somente aguardar a resposta do Mestre");
 				List<Expression> exps = new ArrayList<Expression>();
 
 				boolean end;
-				Log.p("Conjunto de expressoes Num " + expCount++);
+				System.out.println("Conjunto Nº" + expCount++);
 				do{
-					System.out.print("exp: ");
+					System.out.print("EXP: ");
 					exp = scan.nextLine();
-					end = exp.equalsIgnoreCase("NEXT") || exp.equalsIgnoreCase("EXIT");
+					end = exp.equalsIgnoreCase("PROX") || exp.equalsIgnoreCase("PARAR");
 					if(!end){
 						exps.add(new Expression(exp));
 					}
@@ -78,24 +59,41 @@ public class Client{
 				if(!exps.isEmpty()){
 					CandlestickPattern pat = new CandlestickPattern(exps);
 
-					Log.p("Enviando dados...");
+					Log.p("Enviando expressões...");
 					writer.writeObject(pat);
-					Log.p("Dados enviados.");
+					Log.p("Expressões enviadas.");
 
 					writer.flush();
 				}
 
-			} while(!exp.equalsIgnoreCase("EXIT"));
+			} while(!exp.equalsIgnoreCase("PARAR"));
 			writer.close();
 			scan.close();
-			sk.close();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-
-
+		isEnded = true;
 	}
+
+	private final Runnable resultReceiver = new Runnable() {
+
+		@Override
+		public void run() {
+			try {
+				while(!isEnded){
+					ObjectInputStream objReceiver = new ObjectInputStream(socket.getInputStream());
+
+					GainStatistics result = (GainStatistics) objReceiver.readObject();
+					Log.p(result);
+				}
+				socket.close();
+
+			} catch (IOException | ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+	};
+
 
 }

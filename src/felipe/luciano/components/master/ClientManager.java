@@ -3,7 +3,6 @@ package felipe.luciano.components.master;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -16,15 +15,10 @@ public class ClientManager {
 
 	private ServerSocket serverSk;
 	private Socket clientSk;
-	private InetAddress client;
 	private Master master;
 	
 	ClientManager(Master master) {
 		this.master = master;
-	}
-	
-	public InetAddress getClientAddress(){
-		return client;
 	}
 	
 	public void acceptClient(){
@@ -33,9 +27,8 @@ public class ClientManager {
 			serverSk = new ServerSocket(Consts.Components.MASTER_CLIENT_PORT);
 			
 			clientSk = serverSk.accept();
-			client = clientSk.getInetAddress();
 			
-			Log.p("Cliente conectado: " + client);
+			Log.p("Cliente conectado: " + clientSk.getInetAddress());
 			new Thread(receiver).start();
 			
 		} catch (IOException e) {
@@ -49,12 +42,16 @@ public class ClientManager {
 			try {
 				ObjectInputStream reader = new ObjectInputStream(clientSk.getInputStream());
 				
-				while(true){
-					CandlestickPattern pattern = (CandlestickPattern) reader.readObject();
-					if(pattern == null) break;
-					Log.p("Objeto Recebido pelo Server:\n\n" + pattern.toString());
+				CandlestickPattern pattern;
+				do {
+					pattern = (CandlestickPattern) reader.readObject();
+					if(pattern == null) {
+						Log.p("Cliente parou de enviar objetos");
+					} else {
+						Log.p("Objeto Recebido pelo Server:\n\n" + pattern.toString());
+					}
 					master.notifyNewPattern(pattern);
-				}
+				} while(pattern != null);
 				
 				reader.close();
 				clientSk.close();

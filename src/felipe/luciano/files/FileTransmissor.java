@@ -6,7 +6,6 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
 
 import felipe.luciano.support.Consts;
@@ -14,22 +13,20 @@ import felipe.luciano.support.Log;
 
 public class FileTransmissor {
 
-	private InetAddress sendTo;
-	private int port;
+    private Socket socket;
 
-	public FileTransmissor(InetAddress sendTo, int port) {
-		this.port = port;
-		this.sendTo = sendTo;
+	public FileTransmissor(Socket socketToSend) {
+		socket = socketToSend;
 	}
 
 	public boolean send(File fileToSend){
 
+        String host = socket.getInetAddress().getHostName();
 		try {
-			Socket sk = new Socket(sendTo, port);
-			BufferedOutputStream saidaBuffer = new BufferedOutputStream(sk.getOutputStream(), Consts.Files.FILE_BUFFER_LENGTH);
+			BufferedOutputStream saidaBuffer = new BufferedOutputStream(socket.getOutputStream(), Consts.Files.FILE_BUFFER_LENGTH);
 			DataOutputStream saidaData = new DataOutputStream(saidaBuffer);
 
-			Log.p("Enviando arquivos para a máquina " + sendTo.getHostName() + "...");
+			Log.p("Enviando arquivos para a máquina " + host + "...");
 
 			byte[] buffer = new byte[Consts.Files.FILE_BUFFER_LENGTH];
 
@@ -42,7 +39,7 @@ public class FileTransmissor {
 				saidaData.writeUTF(file.getName());
 				saidaData.writeLong(file.length());
 
-				Log.p(sendTo.getHostName() + ": Enviando '" + file.getName() + "', Tamanho: " + file.length() / 1000 + " KB");
+				Log.p(host + ": Enviando '" + file.getName() + "', Tamanho: " + file.length() / 1000 + " KB");
 
 				int byteCount = 0;
 				while ((byteCount = fileReader.read(buffer, 0, Consts.Files.FILE_BUFFER_LENGTH)) != -1){
@@ -51,17 +48,15 @@ public class FileTransmissor {
 				fileReader.close();
 
 			}
-			Log.p("Todos os arquivos enviados para: " + sendTo.getHostName());
+			Log.p("Todos os arquivos enviados para: " + host);
 
 			saidaBuffer.flush();
 			saidaData.close();
 			saidaBuffer.close();
-			sk.close();
-			
 			return true;
 
 		} catch (IOException e) {
-
+			Log.e("Problema ao enviar arquivo - " + e.getMessage());
 		}
 		return false;
 	}

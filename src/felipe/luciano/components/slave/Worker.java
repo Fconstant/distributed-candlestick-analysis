@@ -9,6 +9,7 @@ import org.apache.commons.csv.CSVFormat;
 import felipe.luciano.finances.Candlestick;
 import felipe.luciano.finances.CandlestickPattern;
 import felipe.luciano.finances.GainResult;
+import felipe.luciano.finances.Verifier;
 import felipe.luciano.support.Log;
 
 public class Worker implements Runnable {
@@ -37,26 +38,9 @@ public class Worker implements Runnable {
 		}
 
 		Log.p("Processando arquivo atual...");
-		GainResult result = new GainResult();
-		for(int i = 4; i < allDays.size() - 3 ; i++){
-			boolean check = pattern.verify(allDays.subList(i - 4, i));
-
-			if(check){
-				double compareClose = allDays.get(i).getClose() * 3;
-				double sum = 0;
-
-				for(int j = 1 ; j <= 3 ; j++)
-					sum += allDays.get(i + j).getClose();
-
-				if(compareClose > sum)
-					result.countProfit();
-				else
-					result.countLoss();
-
-			} else result.countNotFound();
-			Log.p(result);
-		}
 		
+		Verifier ver = new Verifier(pattern, allDays);
+		GainResult result = ver.verify();
 		slave.notifyResult(file.getName(), result);
 	}
 	
