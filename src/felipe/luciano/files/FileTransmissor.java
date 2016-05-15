@@ -6,27 +6,28 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.io.OutputStream;
 
 import felipe.luciano.support.Consts;
 import felipe.luciano.support.Log;
 
 public class FileTransmissor {
 
-    private Socket socket;
+    private OutputStream outStream;
+    private String hostName;
 
-	public FileTransmissor(Socket socketToSend) {
-		socket = socketToSend;
+	public FileTransmissor(String hostName, OutputStream outStream) {
+		this.outStream = outStream;
+		this.hostName = hostName;
 	}
 
 	public boolean send(File fileToSend){
 
-        String host = socket.getInetAddress().getHostName();
 		try {
-			BufferedOutputStream saidaBuffer = new BufferedOutputStream(socket.getOutputStream(), Consts.Files.FILE_BUFFER_LENGTH);
+			BufferedOutputStream saidaBuffer = new BufferedOutputStream(outStream, Consts.Files.FILE_BUFFER_LENGTH);
 			DataOutputStream saidaData = new DataOutputStream(saidaBuffer);
 
-			Log.p("Enviando arquivos para a máquina " + host + "...");
+			Log.p("Enviando arquivos para a máquina " + hostName + "...");
 
 			byte[] buffer = new byte[Consts.Files.FILE_BUFFER_LENGTH];
 
@@ -39,20 +40,18 @@ public class FileTransmissor {
 				saidaData.writeUTF(file.getName());
 				saidaData.writeLong(file.length());
 
-				Log.p(host + ": Enviando '" + file.getName() + "', Tamanho: " + file.length() / 1000 + " KB");
+				Log.p(hostName + ": Enviando '" + file.getName() + "', Tamanho: " + file.length() / 1000 + " KB");
 
 				int byteCount = 0;
 				while ((byteCount = fileReader.read(buffer, 0, Consts.Files.FILE_BUFFER_LENGTH)) != -1){
 					saidaBuffer.write(buffer, 0, byteCount);
 				}
-				fileReader.close();
+				//fileReader.close();
 
 			}
-			Log.p("Todos os arquivos enviados para: " + host);
+			Log.p("Todos os arquivos enviados para: " + hostName);
 
 			saidaBuffer.flush();
-			saidaData.close();
-			saidaBuffer.close();
 			return true;
 
 		} catch (IOException e) {

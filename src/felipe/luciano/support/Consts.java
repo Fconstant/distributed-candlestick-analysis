@@ -40,7 +40,7 @@ public final class Consts {
 		private Components(){}
 
 		// Client Ports
-		public static final int CLIENT_PORT = 20000;
+		public static final int CLIENT_PORT = 20200;
 
 		// Slave PortsPorts
 		public static final int SLAVE_PORT = 20500;

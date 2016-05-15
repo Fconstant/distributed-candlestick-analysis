@@ -26,7 +26,6 @@ public class Client{
 
 	public void run(){
 		Log.p("Cliente iniciado.");
-		new Thread(resultReceiver).start();
 		
 		Scanner scan = new Scanner(System.in);
 		System.out.print("Digite o IP do mestre: ");
@@ -34,6 +33,7 @@ public class Client{
 		
 		try {
 			socket = new Socket(InetAddress.getByName(masterIP), Consts.Components.CLIENT_PORT);
+			new Thread(resultReceiver).start();
 			socket.setKeepAlive(true);
 			Log.p("Mestre conectado com sucesso.");
 

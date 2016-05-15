@@ -33,7 +33,7 @@ public class Master {
 		slavesManager.start();
 		
 		// Configurando e iniciando o ClientManager
-		clientManager.acceptClient();
+		clientManager.start();
 	}
 
 	void notifyNewPattern(CandlestickPattern pattern){

@@ -15,7 +15,7 @@ import felipe.luciano.finances.GainStatistics;
 import felipe.luciano.support.Consts;
 import felipe.luciano.support.Log;
 
-public class SlavesManager{
+public class SlavesManager extends Thread{
 
 	private volatile Queue<SlaveHandler> slaveQueue;
 
@@ -32,7 +32,7 @@ public class SlavesManager{
 				Runtime.getRuntime().availableProcessors());
 	}
 
-	void start(){
+	public void run(){
 		// Prepara a verificação de escravos, usando Broadcast
 		Log.p("Comecando a verificacao de escravos na rede...");
 		BroadcastSender.INSTANCE.startSearch();

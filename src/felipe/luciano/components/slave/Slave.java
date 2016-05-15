@@ -39,14 +39,17 @@ public class Slave {
 			socket = new Socket(masterIP, Consts.Components.SLAVE_PORT);
 			Log.p("Conectado com o Mestre.");
 
-			if(!receiveFiles())
-				System.exit(0);
+			receiveFiles();
 			
 		} catch (IOException e) {
 			Log.e("Erro ao conectar-se com o Mestre");
 		}
 
-		while(work());
+		boolean finished = false;
+		do{
+			finished = work();
+		} while(!finished);
+		
 		try {
 			Log.p("Fechando conexão e terminando execução...");
 			socket.close();
@@ -56,8 +59,8 @@ public class Slave {
 
 	}
 
-	private boolean receiveFiles(){
-		FileReceiver receiver = new FileReceiver(socket);
+	private boolean receiveFiles() throws IOException{
+		FileReceiver receiver = new FileReceiver(socket.getInetAddress().getHostName(), socket.getInputStream());
 		boolean res = receiver.receiveAndSave(); 
 		if(res)
 			Log.p("Arquivos recebidos com sucesso!");
@@ -66,7 +69,6 @@ public class Slave {
 
 		return res;
 	}
-
 
 	private boolean work(){
 
@@ -86,7 +88,7 @@ public class Slave {
 		// Começo do processamento dos arquivos de finanças
 		Log.p("Comecando o processamento em massa...");
 
-		File folder = new File("files/");
+		File folder = new File(Consts.Files.FILES_LOCATION);
 		statistics = new GainStatistics(folder.list().length, curPattern);
 		executor = Executors.newFixedThreadPool(
 				Runtime.getRuntime().availableProcessors()); // Criando uma piscina de Threads

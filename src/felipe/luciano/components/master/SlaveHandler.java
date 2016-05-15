@@ -29,7 +29,11 @@ public class SlaveHandler extends Thread{
 
 	private void prepareSlave(){
 		if(!isPrepared){
-			sendFiles();
+			try {
+				sendFiles();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			isPrepared = true;	
 		}
 	}
@@ -60,10 +64,11 @@ public class SlaveHandler extends Thread{
 	}
 
 	// Envia os arquivos de finanças para o escravo
-	private void sendFiles(){
+	private void sendFiles() throws IOException{
 		File folder = new File(Consts.Files.FILES_LOCATION);
 
-		FileTransmissor transmissor = new FileTransmissor(slaveSocket);
+		FileTransmissor transmissor = new FileTransmissor(
+				slaveSocket.getInetAddress().getHostName(), slaveSocket.getOutputStream());
 		transmissor.send(folder);
 	}
 

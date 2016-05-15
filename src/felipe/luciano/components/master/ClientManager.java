@@ -11,7 +11,7 @@ import felipe.luciano.finances.GainStatistics;
 import felipe.luciano.support.Consts;
 import felipe.luciano.support.Log;
 
-public class ClientManager {
+public class ClientManager extends Thread {
 
 	private ServerSocket serverSk;
 	private Socket clientSk;
@@ -21,7 +21,7 @@ public class ClientManager {
 		this.master = master;
 	}
 	
-	public void acceptClient(){
+	public void run(){
 
 		try {
 			serverSk = new ServerSocket(Consts.Components.MASTER_CLIENT_PORT);
