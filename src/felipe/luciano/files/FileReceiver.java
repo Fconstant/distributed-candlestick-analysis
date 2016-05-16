@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Socket;
 
 import felipe.luciano.support.Consts;
 import felipe.luciano.support.Log;
@@ -45,7 +44,7 @@ public class FileReceiver {
 				for (int readBytes = 0; readBytes < tamArquivo; readBytes++)
 					fileWriter.write(bufferInput.read());
 
-				//fileWriter.close();
+				fileWriter.close();
 			}
 			return true;
 			

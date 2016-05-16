@@ -42,4 +42,5 @@ public class GainResult implements Serializable{
 		return "Profit: " + getProfit() + ", Loss: " + getLoss() + ", NotFound: " + getNotFound() + "\tTOTAL: " + total();
 	}
 	
+	
 }

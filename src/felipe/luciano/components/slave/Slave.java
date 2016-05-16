@@ -116,12 +116,10 @@ public class Slave {
 		try {
 			Log.p("Trabalho terminado.");
 			masterWriter.write(105); // Notifica o mestre que o trabalho acabou e já tem resultados
-			Log.p("flushing...");
 			masterWriter.flush();
 			
 			Log.p("Enviando resultados para o mestre...");
 			masterWriter.writeObject(statistics);
-			Log.p("flushing2...");
 			masterWriter.flush();
 			
 			Log.p("Resultados enviados.");
