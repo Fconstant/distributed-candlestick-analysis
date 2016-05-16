@@ -77,19 +77,20 @@ public class SlaveHandler extends Thread{
 	private void sendObject(){
 
 		String host = slaveSocket.getInetAddress().getHostAddress();
-
-		if(objectToSend == null){
-			Log.e("Object a ser enviado é nulo, abortando...");
-			return;
-		}
-
+		
 		try {
+			if(objectToSend == null){
+				Log.e("Object a ser enviado é nulo, abortando...");
+				slaveSocket.close();
+				return;
+			}
+
 			Log.p("Enviando objeto para " + host + "...");
 
 			// Envio de Objeto
 			OutputStream out = slaveSocket.getOutputStream();
 			ObjectOutputStream writer = new ObjectOutputStream(out);
-			
+
 			writer.writeObject(objectToSend);
 			writer.flush();
 			Log.p("Objeto Enviado!");
@@ -106,11 +107,6 @@ public class SlaveHandler extends Thread{
 			manager.notifyResult((GainStatistics) reader.readObject(), this);
 
 			Log.p("Escravo " + host + " voltou a ficar ocioso.");
-
-			writer.close();
-			out.close();
-			reader.close();
-			in.close();
 
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();

@@ -16,11 +16,13 @@ public class Verifier {
 	private List<Candlestick> allDays;
 	private CandlestickPattern pattern;
 	private Expression strategy;
+	private String name;
 
 	private ScriptEngine engine;
 	private ScriptContext context;
 
-	public Verifier(CandlestickPattern pattern, List<Candlestick> allDays) {
+	public Verifier(String name, CandlestickPattern pattern, List<Candlestick> allDays) {
+		this.name = name;
 		this.pattern = pattern;
 		this.allDays = allDays;
 
@@ -29,8 +31,6 @@ public class Verifier {
 
 		strategy = new Expression("P1_CLOSE > (P2_CLOSE + P3_CLOSE + P4_CLOSE) / 3");
 	}
-
-
 
 	public GainResult verify() {
 
@@ -87,12 +87,12 @@ public class Verifier {
 
 		@Override
 		public void run() {
-			while(!isInterrupted()){
+			while(!Thread.currentThread().isInterrupted()){
 				try {
-					Thread.sleep(5000);
-					Log.p(pattern, result);
+					Thread.sleep(2000);
+					Log.p(name, result);
 				} catch (InterruptedException e) {
-					// Do nothing
+                    Thread.currentThread().interrupt();
 				}
 			}
 		}

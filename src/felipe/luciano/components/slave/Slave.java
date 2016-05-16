@@ -46,9 +46,9 @@ public class Slave {
 		}
 
 		boolean finished = false;
-		do{
+		do {
 			finished = work();
-		} while(!finished);
+		} while(finished);
 		
 		try {
 			Log.p("Fechando conexão e terminando execução...");
@@ -78,11 +78,12 @@ public class Slave {
 		ObjectOutputStream masterWriter;
 		
 		try {
+			Log.p("Aguardando requisição de novo objeto...");
 			masterReader = new ObjectInputStream(socket.getInputStream());
 			masterWriter = new ObjectOutputStream(socket.getOutputStream());
 			
-			Log.p("Aguardando requisição de novo objeto...");
 			curPattern = (CandlestickPattern) masterReader.readObject();
+			if(curPattern == null) return false;
 
 			Log.p("Objeto recebido:\n" + curPattern);
 		} catch (ClassNotFoundException | IOException e) {
@@ -123,8 +124,6 @@ public class Slave {
 			masterWriter.flush();
 			
 			Log.p("Resultados enviados.");
-			masterReader.close();
-			masterWriter.close();
 			
 		} catch (IOException e) {
 			return false;

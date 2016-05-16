@@ -39,7 +39,7 @@ public class Worker implements Runnable {
 
 		Log.p("Processando arquivo atual...");
 		
-		Verifier ver = new Verifier(pattern, allDays);
+		Verifier ver = new Verifier(file.getName(), pattern, allDays);
 		GainResult result = ver.verify();
 		slave.notifyResult(file.getName(), result);
 	}
