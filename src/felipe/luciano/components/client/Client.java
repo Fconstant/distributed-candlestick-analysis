@@ -29,7 +29,7 @@ public class Client{
 		
 		Scanner scan = new Scanner(System.in);
 		System.out.print("Digite o IP do mestre: ");
-		String masterIP = scan.next();
+		String masterIP = scan.nextLine();
 		
 		try {
 			socket = new Socket(InetAddress.getByName(masterIP), Consts.Components.CLIENT_PORT);
@@ -62,18 +62,17 @@ public class Client{
 					Log.p("Enviando expressões...");
 					writer.writeObject(pat);
 					Log.p("Expressões enviadas.");
-
 					writer.flush();
 				}
 
 			} while(!exp.equalsIgnoreCase("PARAR"));
-			writer.close();
 			scan.close();
 
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			isEnded = true;
 		}
-		isEnded = true;
 	}
 
 	private final Runnable resultReceiver = new Runnable() {

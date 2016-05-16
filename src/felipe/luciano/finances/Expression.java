@@ -44,12 +44,12 @@ public class Expression implements Serializable{
 
 	public void loadVarsIntoScriptEngine(Bindings engineScope, List<Candlestick> candles){
 
-		for(String exp : expVars){
+		for(String expVar : expVars){
 			
-			int dia = Character.getNumericValue(exp.charAt(1));
+			int dia = Character.getNumericValue(expVar.charAt(1));
 			Candlestick candle = candles.get(dia - 1);
 
-			char identifier = exp.split("_")[1].charAt(0);
+			char identifier = expVar.split("_")[1].charAt(0);
 
 			double val = 0;
 			switch(identifier){
@@ -59,7 +59,7 @@ public class Expression implements Serializable{
 			case 'L': val = candle.getLow(); break;
 			}
 
-			engineScope.put(exp, val);
+			engineScope.put(expVar, val);
 		}
 	}
 }

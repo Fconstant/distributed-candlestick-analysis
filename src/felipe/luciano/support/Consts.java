@@ -19,7 +19,7 @@ public final class Consts {
 
 		private Finances() {}
 		
-		public static final String EXP_REGEX = "[P][1-3]_[A-Z]+";
+		public static final String EXP_REGEX = "[P][1-5]_[A-Z]+";
 		
 	}
 	

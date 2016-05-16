@@ -74,12 +74,16 @@ public class Slave {
 
 		// Aqui serão recebidos os objetos vindos do Master
 		CandlestickPattern curPattern = null;
+		ObjectInputStream masterReader;
+		ObjectOutputStream masterWriter;
+		
 		try {
-			ObjectInputStream masterReader = new ObjectInputStream(socket.getInputStream());
-
+			masterReader = new ObjectInputStream(socket.getInputStream());
+			masterWriter = new ObjectOutputStream(socket.getOutputStream());
+			
 			Log.p("Aguardando requisição de novo objeto...");
 			curPattern = (CandlestickPattern) masterReader.readObject();
-			masterReader.close();
+
 			Log.p("Objeto recebido:\n" + curPattern);
 		} catch (ClassNotFoundException | IOException e) {
 			return false;
@@ -99,6 +103,7 @@ public class Slave {
 		
 		// Verifica se todos os Threads já acabaram
 		try {
+			executor.shutdown();
 			while(!executor.awaitTermination(3, TimeUnit.SECONDS)); // Espera 3 segs para verificar de novo
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -109,10 +114,20 @@ public class Slave {
 		}
 		
 		try {
-			ObjectOutputStream writer = new ObjectOutputStream(socket.getOutputStream());
-			writer.writeObject(statistics);
-
-			writer.close();
+			Log.p("Trabalho terminado.");
+			masterWriter.write(105); // Notifica o mestre que o trabalho acabou e já tem resultados
+			Log.p("flushing...");
+			masterWriter.flush();
+			
+			Log.p("Enviando resultados para o mestre...");
+			masterWriter.writeObject(statistics);
+			Log.p("flushing2...");
+			masterWriter.flush();
+			
+			Log.p("Resultados enviados.");
+			masterReader.close();
+			masterWriter.close();
+			
 		} catch (IOException e) {
 			return false;
 		}

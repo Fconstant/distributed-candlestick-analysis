@@ -55,8 +55,7 @@ public class Verifier {
 			}
 			
 			if(result){
-
-				strategy.loadVarsIntoScriptEngine(engineScope, allDays.subList(i, i + 3));
+				strategy.loadVarsIntoScriptEngine(engineScope, allDays.subList(i, i + 4));
 				
 				try {
 					result = Boolean.parseBoolean(engine.eval(strategy.toString(), context).toString());

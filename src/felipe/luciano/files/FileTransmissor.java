@@ -46,12 +46,13 @@ public class FileTransmissor {
 				while ((byteCount = fileReader.read(buffer, 0, Consts.Files.FILE_BUFFER_LENGTH)) != -1){
 					saidaBuffer.write(buffer, 0, byteCount);
 				}
-				//fileReader.close();
+				fileReader.close();
 
 			}
 			Log.p("Todos os arquivos enviados para: " + hostName);
 
 			saidaBuffer.flush();
+			outStream.flush();
 			return true;
 
 		} catch (IOException e) {

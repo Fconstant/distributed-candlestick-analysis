@@ -2,6 +2,7 @@ package felipe.luciano.components.master;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
@@ -88,16 +89,28 @@ public class SlaveHandler extends Thread{
 			// Envio de Objeto
 			OutputStream out = slaveSocket.getOutputStream();
 			ObjectOutputStream writer = new ObjectOutputStream(out);
-
+			
 			writer.writeObject(objectToSend);
+			writer.flush();
 			Log.p("Objeto Enviado!");
 
 			// Recepção de Resultados
+			InputStream in = slaveSocket.getInputStream();
+			ObjectInputStream reader = new ObjectInputStream(in);
 			Log.p("Aguardando resposta de " + host);
-			ObjectInputStream slaveReader = new ObjectInputStream(slaveSocket.getInputStream());
 
-			manager.notifyResult((GainStatistics) slaveReader.readObject(), this);
+			while(reader.read() != 105){
+				System.out.print("");
+			}
+			Log.p("Lendo objeto...");
+			manager.notifyResult((GainStatistics) reader.readObject(), this);
+
 			Log.p("Escravo " + host + " voltou a ficar ocioso.");
+
+			writer.close();
+			out.close();
+			reader.close();
+			in.close();
 
 		} catch (IOException | ClassNotFoundException e) {
 			e.printStackTrace();
