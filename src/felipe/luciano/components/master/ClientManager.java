@@ -54,7 +54,7 @@ public class ClientManager extends Thread {
 				} while(pattern != null);
 
 			} catch (IOException e) { 
-				Log.e("Ocorreu um erro ao receber objetos do Client");
+				Log.e("Ocorreu um erro de comunicação com o Cliente");
 
 			} catch (ClassNotFoundException e) {
 				e.printStackTrace();

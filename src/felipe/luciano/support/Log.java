@@ -13,6 +13,6 @@ public final class Log {
 	}
 	
 	public static void e(Object msg){
-		System.err.println("ERROR: " +  msg);
+		System.err.println("ERRO: " +  msg);
 	}
 }
