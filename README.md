@@ -15,7 +15,7 @@ Com isso, foi desenvolvido um programa em _Java_ na tentativa de utilizar tais p
 Somente foi abordado uma Trend e uma Holding Strategy básica: Analisar se o preço de fechamento (Close) do último dia de um Candlestick Pattern, e então verificar se a venda de cada terço desta ação nos próximos três dias retornará lucro.
 Serão aceitos qualquer Candlestick Pattern, que atendam uma grámatica (definido abaixo), representados por um conjunto de expressões.
 
-## Uso
+## Utilização
 Testa condições/expressões dadas pelo Cliente em arquivos financeiros .csv (comma-separated values), verificando se a condição inserida é verdadeira, e, se for, verificando se a Holding Strategy adotada atende ao requisito e retorna um lucro viável para cada .
 
 ## Organização
