@@ -1,10 +1,13 @@
 # Candlestick Pattern
 
-Candlestick Pattern é um projeto desenvolvido pelos alunos da Fatec Carapicuíba 5ºADSM 2016: Felipe Cavalcante Constantino e Luciano Aragão Chiarelli.
+Candlestick Pattern é um projeto desenvolvido pelos alunos da Fatec Carapicuíba 5ºADSM 2016:
+- Felipe Cavalcante Constantino
+- Luciano Aragão Chiarelli.
+
 O sistema processa os dados de forma distribuída (Cliente-Mestre-Escravo). 
 
 ## Introdução
-O projeto foi baseado em um artigo da Journal of Banking & Finance (LINK AQUI) que aborda formas de como obter lucro na bolsa de valores, escolhendo melhor qual empresa comprar ações, e quando vender. Para isso, é abordado pelo artigo fórmulas e procedimentos que se devem realizar para alcançar tal objetivo.
+O projeto foi baseado em um artigo da [Journal of Banking & Finance](http://www.sciencedirect.com/science/article/pii/S0378426615002678) que aborda formas de como obter lucro na bolsa de valores, escolhendo melhor qual empresa comprar ações, e quando vender. Para isso, é abordado pelo artigo fórmulas e procedimentos que se devem realizar para alcançar tal objetivo.
 
 Primeiramente, é apresentado ao leitor a ideia de Candlestick: uma representação gráfica de um ativo a ser analisado (No caso do artigo, ele define cada Candlestick como sendo um dia de 24h). Tendo os Candlesticks em mãos, dados um certo conjunto sequencial de Candlesticks, encontraremos alguns padrões, no qual chamaremos de Candlestick Patterns (No artigo, são abordados somente oito principais e mais importantes). Achados todos os Candlestick Patterns, é necessário saber qual a tendência pela qual o mercado seguirá (Trends) e, baseado nessa tendência, será definido uma estratégia de arrendamento (Holding Strategy) para saber em que momento se deve vender ou não as ações.
 
