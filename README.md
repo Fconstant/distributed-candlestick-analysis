@@ -7,7 +7,7 @@ Candlestick Pattern é um projeto desenvolvido pelos alunos da Fatec Carapicuíb
 O sistema processa os dados de forma distribuída (Cliente-Mestre-Escravo). 
 
 ## Introdução
-O projeto foi baseado em um artigo da [Journal of Banking & Finance](https://github.com/darkninbuss/CandlestickPattern/blob/master/artigo_finances.pdf) que aborda formas de como obter lucro na bolsa de valores, escolhendo melhor qual empresa comprar ações, e quando vender. Para isso, é abordado pelo artigo fórmulas e procedimentos que se devem realizar para alcançar tal objetivo.
+O projeto foi baseado em um artigo da [Journal of Banking & Finance](artigo_finances.pdf) que aborda formas de como obter lucro na bolsa de valores, escolhendo melhor qual empresa comprar ações, e quando vender. Para isso, é abordado pelo artigo fórmulas e procedimentos que se devem realizar para alcançar tal objetivo.
 
 Primeiramente, é apresentado ao leitor a ideia de Candlestick: uma representação gráfica de um ativo a ser analisado (No caso do artigo, ele define cada Candlestick como sendo um dia de 24h). Tendo os Candlesticks em mãos, dados um certo conjunto sequencial de Candlesticks, encontraremos alguns padrões, no qual chamaremos de Candlestick Patterns (No artigo, são abordados somente oito principais e mais importantes). Achados todos os Candlestick Patterns, é necessário saber qual a tendência pela qual o mercado seguirá (Trends) e, baseado nessa tendência, será definido uma estratégia de arrendamento (Holding Strategy) para saber em que momento se deve vender ou não as ações.
 
@@ -27,9 +27,20 @@ O proejto se divide em 3 componentes:
 O resultado completo (Representado pela classe _GainStatistics_) é retornado ao Mestre, que é retornado de volta ao cliente e então printado na tela do mesmo.
 
 ## Como utilizar
+### Obtendo os arquivos de finanças
 No mestre, é preciso ter os arquivos em formato .csv com o padrão de colunas pré definido: Date, Open, High, Low, Close, mas não necessariamente nesta ordem.
-Estes devem estar contidos em um diretório com o nome de _finance_ no mesmo diretório do executável. Esse tipo de arquivo pode ser facilmente obtido por meio do [Yahoo! Finance](finance.yahoo.com/).
 
+Estes devem estar contidos em um diretório com o nome de _finance_ no mesmo diretório do executável. Esse tipo de arquivo pode ser facilmente obtido por meio do [Yahoo! Finance](http://finance.yahoo.com/).
+
+1. Ao entrar no site, pesquise por uma empresa a ser analisada.
+2. Acesse a seção de _Historical Prices_ no menu lateral esquerdo.
+3. Vá até o final da página e clique em _Download Spreadsheet_
+4. Ao finalizar o download, renomeio para um nome que preferir
+5. Mova-o para a pasta _finance_, como falado anteriormente.
+
+Pronto. Você pode baixar vários arquivos .csv de qualquer empresa.
+
+### Iniciando o Sistema
 Atendidos tais requisitos, siga o passo a passo:
 
 1. Inicie o Mestre, ele começará a disparar pacotes de requisição na rede afim de encontrar Escravos. É necessário iniciar o Mestre antes do Cliente
@@ -42,7 +53,7 @@ Atendidos tais requisitos, siga o passo a passo:
 
 OBS: O Escravo não precisa necessariamente ser iniciado antes do Cliente, a única restrição é que o Mestre deve ser iniciado antes do Cliente.
 
-## Exemplo de expressões
+### Exemplo de entrada
 Quando o cliente for iniciado com sucesso, e já conectado com o Mestre, será solicitado que entre com um conjunto de expressões.
 Siga o exemplo abaixo, que simula uma entrada de dados feita por parte do Cliente:
 ```
@@ -54,3 +65,6 @@ exp: P4_CLOSE - P1_OPEN >= P1_HIGH * 3
 exp: SAIR
 ```
 No exemplo acima, temos dois conjuntos de expressões, o primeiro antes do PROX e o segundo depois de PROX. O comando PROX define um limitador entre conjuntos de expressões. E o comando SAIR, um encerrador.
+
+Cada variável da expressão contém duas informações: A posição do dia a ser comparado, e o valor relativo àquele dia.
+A posição do dia pode variar de P1 até P5. E o valor: OPEN, HIGH, LOW ou CLOSE (Preços de Abertura, Alta, Baixa e Fechamento, respectivamente). Formando uma variável só: P[1-5]_[OPEN/HIGH/LOW/CLOSE].
