@@ -28,13 +28,14 @@ No mestre, é preciso ter os arquivos em formato .csv com o padrão de colunas p
 Estes devem estar contidos em um diretório com o nome de _finance_ no mesmo diretório do executável. Esse tipo de arquivo pode ser facilmente obtido por meio do [Yahoo! Finance](finance.yahoo.com/).
 
 Atendidos tais requisitos, siga o passo a passo:
-1. Inicie o Mestre, ele começará a disparar pacotes de requisição na rede afim de encontrar Escravos. É necessário iniciar o Mestre antes do Cliente.
-2. Inicie o(s) Escravo(s), e então ele começará a receber os arquivos .csv do Mestre.
+
+1. Inicie o Mestre, ele começará a disparar pacotes de requisição na rede afim de encontrar Escravos. É necessário iniciar o Mestre antes do Cliente
+2. Inicie o(s) Escravo(s), e então ele começará a receber os arquivos .csv do Mestre
 3. Inicie o Cliente, e forneça o IP do Mestre
-4. A partir do Cliente, forneça um conjunto de expressões que serão testadas.
-5. Para ir para o próximo conjunto de expressões, simplemente digite PROX.
-6. Quando terminar, digite SAIR. E então o Cliente somente aguardará os resultados para serem printados na tela.
-7. Após o término dos resultados, o sistema terminará.
+4. A partir do Cliente, forneça um conjunto de expressões que serão testadas
+5. Para ir para o próximo conjunto de expressões, simplemente digite PROX
+6. Quando terminar, digite SAIR. E então o Cliente somente aguardará os resultados para serem printados na tela
+7. Após o término dos resultados, o sistema terminará
 
 OBS: O Escravo não precisa necessariamente ser iniciado antes do Cliente, a única restrição é que o Mestre deve ser iniciado antes do Cliente.
 
