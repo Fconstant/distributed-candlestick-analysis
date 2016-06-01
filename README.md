@@ -58,7 +58,7 @@ Atendidos tais requisitos, siga o passo a passo:
 
 OBS: O Escravo não precisa necessariamente ser iniciado antes do Cliente, a única restrição é que o Mestre deve ser iniciado antes do Cliente.
 
-### Exemplo de entrada
+### Entrada
 Quando o cliente for iniciado com sucesso, e já conectado com o Mestre, será solicitado que entre com um conjunto de expressões.
 Siga o exemplo abaixo, que simula uma entrada de dados feita por parte do Cliente:
 ```
@@ -74,5 +74,16 @@ No exemplo acima, temos dois conjuntos de expressões, o primeiro antes do PROX 
 Cada variável da expressão contém duas informações: A posição do dia a ser comparado, e o valor relativo àquele dia.
 A posição do dia pode variar de P1 até P5. E o valor: OPEN, HIGH, LOW ou CLOSE (Preços de Abertura, Alta, Baixa e Fechamento, respectivamente). Formando uma variável só: P[1-5]_[OPEN/HIGH/LOW/CLOSE].
 
-Vale também lembrar que o motor em que as expressões são testadas é na verdade em _JavaScript_. Ou seja, serão também aceitos métodos/constantes nativas de _JavaScript_ dentro da expressão. Como por exemplo: podemos utilizar a classe _Math_ para pegar o valor de PI, ou um método de potenciação, e os colocarmos dentro das expressões:
-> exp: Math.PI * P3_OPEN < Math.pow(P1_OPEN, 2)
+Vale também lembrar que as expressões são testadas em um motor _JavaScript_. Ou seja, serão também aceitos métodos/constantes nativas de _JavaScript_ dentro da expressão. Como por exemplo: podemos utilizar a classe _Math_ para pegar o valor de PI, ou um método de potenciação, e os colocarmos dentro das expressões:
+``` exp: Math.PI * P3_OPEN < Math.pow(P1_OPEN, 2) ```
+
+### Saida
+Após um certo tempo de processamento, o Mestre retornará uma gama de resultados para o Cliente (Representado pela classe _GainStatistics_).
+
+Exemplo de saída:
+```
+Patterns: [P1_CLOSE < P2_OPEN, P3_HIGH > P3_CLOSE] Results:{EMPRESA1.csv=Profit: 105, Loss: 10, NotFound: 88	TOTAL: 203, EMPRESA2.csv=Profit: 488, Loss: 923, NotFound: 529	TOTAL: 1940}
+```
+- **Patterns:** Representado pela classe _CandlestickPattern_. Indica conjunto de expressões que o Cliente enviou. Cada expressão é separada por vírgulas.
+- **Results:** Representado por um _Map<String, GainResult>_, sendo a chave de _String_ o nome do arquivo (empresa) avaliado. Para cada _CandlestickPattern_, é printado um resultado para cada arquivo inicialmente enviado ao Escravo. A classe _GainResult_ armazena o número de ganhos (**Profit**) e perdas (**Loss**) dentre os padrões encontrados, assim como padrões não encontrados (**Notfound**).
+
