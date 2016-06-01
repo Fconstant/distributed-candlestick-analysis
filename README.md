@@ -85,5 +85,5 @@ Exemplo de saída:
 Patterns: [P1_CLOSE < P2_OPEN, P3_HIGH > P3_CLOSE] Results:{EMPRESA1.csv=Profit: 105, Loss: 10, NotFound: 88	TOTAL: 203, EMPRESA2.csv=Profit: 488, Loss: 923, NotFound: 529	TOTAL: 1940}
 ```
 - **Patterns:** Representado pela classe _CandlestickPattern_. Indica conjunto de expressões que o Cliente enviou. Cada expressão é separada por vírgulas.
-- **Results:** Representado por um _Map<String, GainResult>_, sendo a chave de _String_ o nome do arquivo (empresa) avaliado. Para cada _CandlestickPattern_, é printado um resultado para cada arquivo inicialmente enviado ao Escravo. A classe _GainResult_ armazena o número de ganhos (**Profit**) e perdas (**Loss**) dentre os padrões encontrados, assim como padrões não encontrados (**Notfound**).
+- **Results:** Representado por um _Map\<String, GainResult\>_, sendo a chave de _String_, o nome do arquivo (empresa) avaliado. Para cada _CandlestickPattern_, é printado um resultado para cada arquivo inicialmente enviado ao Escravo. A classe _GainResult_ armazena o número de ganhos (**Profit**) e perdas (**Loss**) dentre os padrões encontrados, assim como padrões não encontrados (**Notfound**).
 
