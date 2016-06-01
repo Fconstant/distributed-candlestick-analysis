@@ -3,6 +3,7 @@
 Candlestick Pattern é um projeto desenvolvido pelos alunos da Fatec Carapicuíba 5º ADS Manhã 2016:
 - Felipe Cavalcante Constantino
 - Luciano Aragão Chiarelli.
+
 Na disciplina de Sistemas Distribuidos.
 O sistema processa os dados de forma distribuída entre máquinas (Cliente-Mestre-Escravo), ou até mesmo em IPC. 
 
