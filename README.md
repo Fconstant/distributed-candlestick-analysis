@@ -1,5 +1,7 @@
 # Candlestick Pattern
 
+[![Build Status](https://travis-ci.org/Fconstant/CandlestickPattern.svg?branch=master)](https://travis-ci.org/Fconstant/CandlestickPattern)
+
 Candlestick Pattern é um projeto desenvolvido pelos alunos da Fatec Carapicuíba 5º ADS Manhã 2016:
 - Felipe Cavalcante Constantino
 - Luciano Aragão Chiarelli.
